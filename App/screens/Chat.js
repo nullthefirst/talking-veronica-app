@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,47 +6,26 @@ import {
   TextInput,
   ScrollView,
   Keyboard,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import Avatar from "../components/Avatar";
-import Message from "../components/Message";
-import { KeyboardSpacer } from "../components/KeyboardSpacer";
-import { colours } from "../constants/Colours";
-import AndroidSafeArea from "../util/AndroidSafeArea";
+} from 'react-native';
+import { WebView } from 'react-native-webview';
+import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
+import Message from '../components/Message';
+import { KeyboardSpacer } from '../components/KeyboardSpacer';
+import { colours } from '../constants/Colours';
+import AndroidSafeArea from '../util/AndroidSafeArea';
 
 export default function Chat() {
-  // talking veronica message updates
-  const talkingVeronicaMessages = [
-    "Hi I’m Veronica. How are you today?",
-    "Are you sure? You know it’s okay to admit it’s bad if it was.",
-    "That’s very unprofessional. Stop it!",
-    "You know you can tell me anything right?",
-    "Why?",
-    "No [Daniel]. I’m your very special friend.",
-  ];
-
-  const [talkingVeronicaMessageIndex, setTalkingVeronicaMessageIndex] =
-    useState(0);
-
-  const updateTalkingVeronicaMessage = () => {
-    if (talkingVeronicaMessageIndex < talkingVeronicaMessages.length - 1) {
-      setTalkingVeronicaMessageIndex(talkingVeronicaMessageIndex + 1);
-      setDanielMessage("");
-      setInputValue("");
-    } else {
-      setTalkingVeronicaMessageIndex(0);
-    }
-  };
-
   // daniel message updates
-  const [danielMessage, setDanielMessage] = useState("");
-  const [inputValue, setInputValue] = useState("");
+  const [danielMessage, setDanielMessage] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   // dynamic scroll enabling
   const [scrollEnabled, setScrollEnabled] = useState(false);
 
   const submitMessage = () => {
     setDanielMessage(inputValue);
+    setInputValue('');
     Keyboard.dismiss();
   };
 
@@ -57,13 +36,18 @@ export default function Chat() {
           <View style={styles.avatar}>
             <Avatar transitionCount={7} />
           </View>
-          <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
+          <View style={[styles.chat, styles.talkingVeronicaChat]}>
+            <WebView
+              source={{ uri: 'https://talking-veronica-chat.netlify.app' }}
+            />
+          </View>
+          {/* <TouchableOpacity onPress={() => alert('veronica talked')}>
             <Message
               textMessage={talkingVeronicaMessages[talkingVeronicaMessageIndex]}
               styling={[styles.chat, styles.talkingVeronicaChat]}
               textStyling={styles.talkingVeronicaChatText}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <View style={styles.danielChat}>
             <Message
               textMessage={danielMessage}
@@ -98,8 +82,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   avatar: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 100,
     marginTop: 50,
   },
@@ -117,14 +101,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 150,
     width: 250,
+    height: 130,
   },
   talkingVeronicaChatText: {
     fontSize: 20,
     color: colours.white,
   },
   danielChat: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     marginBottom: 150,
     marginTop: 10,
     marginRight: 20,
@@ -134,8 +119,8 @@ const styles = StyleSheet.create({
     color: colours.black,
   },
   inputGroup: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   inputText: {
     flexGrow: 10,
