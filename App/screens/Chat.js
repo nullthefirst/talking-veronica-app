@@ -49,8 +49,13 @@ export default function Chat() {
 
   const updateTalkingVeronicaMessage = async () => {
     if (talkingVeronicaMessageIndex < talkingVeronicaMessages.length - 1) {
+      // clear Daniel message
+      setDanielMessage('');
+
+      // update Talking Veronica message
       setTalkingVeronicaMessageIndex(talkingVeronicaMessageIndex + 1);
 
+      // update Talking Veronica audio
       setSoundToPlay(talkingVeronicaAudio[talkingVeronicaMessageIndex + 1]);
 
       const { sound } = await Audio.Sound.createAsync(soundToPlay, {
