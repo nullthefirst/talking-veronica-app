@@ -1,7 +1,7 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import Avatar from "../components/Avatar";
-import AndroidSafeArea from "../util/AndroidSafeArea";
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Avatar from '../components/Avatar';
+import AndroidSafeArea from '../util/AndroidSafeArea';
 
 export default function Filler() {
   return (

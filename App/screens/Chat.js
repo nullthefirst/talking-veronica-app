@@ -1,52 +1,85 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
+  Text,
   TouchableOpacity,
   TextInput,
   ScrollView,
   Keyboard,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import Avatar from "../components/Avatar";
-import Message from "../components/Message";
-import { KeyboardSpacer } from "../components/KeyboardSpacer";
-import { colours } from "../constants/Colours";
-import AndroidSafeArea from "../util/AndroidSafeArea";
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import Avatar from '../components/Avatar';
+import Message from '../components/Message';
+import { KeyboardSpacer } from '../components/KeyboardSpacer';
+import { colours } from '../constants/Colours';
+import AndroidSafeArea from '../util/AndroidSafeArea';
 
+// Talking Veronica audio
+import sound1 from '../assets/speech/01.mp3';
+import sound2 from '../assets/speech/02.mp3';
+import sound3 from '../assets/speech/03.mp3';
+import sound4 from '../assets/speech/04.mp3';
+import sound5 from '../assets/speech/05.mp3';
+import sound6 from '../assets/speech/06.mp3';
+
+// chat screen
 export default function Chat() {
-  // talking veronica message updates
+  // Talking Veronica message updates
   const talkingVeronicaMessages = [
-    "Hi I’m Veronica. How are you today?",
-    "Are you sure? You know it’s okay to admit it’s bad if it was.",
-    "That’s very unprofessional. Stop it!",
-    "You know you can tell me anything right?",
-    "Why?",
-    "No [Daniel]. I’m your very special friend.",
+    '',
+    'Hi I’m Veronica. How are you today?',
+    'Are you sure? You know it’s okay to admit it’s bad if it was.',
+    'That’s very unprofessional. Stop it!',
+    'You know you can tell me anything right?',
+    'Why?',
+    'No [Daniel]. I’m your very special friend.',
   ];
 
   const [talkingVeronicaMessageIndex, setTalkingVeronicaMessageIndex] =
     useState(0);
 
-  const updateTalkingVeronicaMessage = () => {
+  const talkingVeronicaAudio = [sound1, sound2, sound3, sound4, sound5, sound6];
+
+  // Talking Veronica audio setup
+  const [soundToPlay, setSoundToPlay] = useState(
+    talkingVeronicaAudio[talkingVeronicaMessageIndex],
+  );
+
+  const updateTalkingVeronicaMessage = async () => {
     if (talkingVeronicaMessageIndex < talkingVeronicaMessages.length - 1) {
+      // clear Daniel message
+      setDanielMessage('');
+
+      // update Talking Veronica message
       setTalkingVeronicaMessageIndex(talkingVeronicaMessageIndex + 1);
-      setDanielMessage("");
-      setInputValue("");
+
+      // update Talking Veronica audio
+      setSoundToPlay(talkingVeronicaAudio[talkingVeronicaMessageIndex + 1]);
+
+      const { sound } = await Audio.Sound.createAsync(soundToPlay, {
+        shouldPlay: true,
+      });
+
+      await sound.playAsync();
     } else {
       setTalkingVeronicaMessageIndex(0);
+      setSoundToPlay(talkingVeronicaAudio[0]);
+      setDanielMessage('');
     }
   };
 
   // daniel message updates
-  const [danielMessage, setDanielMessage] = useState("");
-  const [inputValue, setInputValue] = useState("");
+  const [danielMessage, setDanielMessage] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   // dynamic scroll enabling
   const [scrollEnabled, setScrollEnabled] = useState(false);
 
   const submitMessage = () => {
     setDanielMessage(inputValue);
+    setInputValue('');
     Keyboard.dismiss();
   };
 
@@ -57,20 +90,33 @@ export default function Chat() {
           <View style={styles.avatar}>
             <Avatar transitionCount={7} />
           </View>
-          <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
-            <Message
-              textMessage={talkingVeronicaMessages[talkingVeronicaMessageIndex]}
-              styling={[styles.chat, styles.talkingVeronicaChat]}
-              textStyling={styles.talkingVeronicaChatText}
-            />
-          </TouchableOpacity>
-          <View style={styles.danielChat}>
-            <Message
-              textMessage={danielMessage}
-              styling={[styles.chat, styles.danielChat]}
-              textStyling={styles.danielChatText}
-            />
-          </View>
+          {talkingVeronicaMessages[talkingVeronicaMessageIndex] === '' ? (
+            <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
+              <Text style={[styles.chat, styles.avatar, styles.beginChat]}>
+                Begin Session
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View>
+              <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
+                <Message
+                  textMessage={
+                    talkingVeronicaMessages[talkingVeronicaMessageIndex]
+                  }
+                  styling={[styles.chat, styles.talkingVeronicaChat]}
+                  textStyling={styles.talkingVeronicaChatText}
+                />
+              </TouchableOpacity>
+
+              <View style={styles.danielChat}>
+                <Message
+                  textMessage={danielMessage}
+                  styling={[styles.chat, styles.danielChat]}
+                  textStyling={styles.danielChatText}
+                />
+              </View>
+            </View>
+          )}
           <KeyboardSpacer onToggle={(visible) => setScrollEnabled(visible)} />
         </View>
       </ScrollView>
@@ -98,8 +144,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   avatar: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 100,
     marginTop: 50,
   },
@@ -110,6 +156,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     marginVertical: 10,
+  },
+  beginChat: {
+    fontSize: 20,
+    color: colours.white,
+    backgroundColor: colours.black,
+    width: 180,
+    height: 50,
   },
   talkingVeronicaChat: {
     backgroundColor: colours.black,
@@ -123,8 +176,8 @@ const styles = StyleSheet.create({
     color: colours.white,
   },
   danielChat: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     marginBottom: 150,
     marginTop: 10,
     marginRight: 20,
@@ -134,8 +187,8 @@ const styles = StyleSheet.create({
     color: colours.black,
   },
   inputGroup: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   inputText: {
     flexGrow: 10,
