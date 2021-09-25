@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
+  Text,
   TouchableOpacity,
   TextInput,
   ScrollView,
@@ -15,7 +16,55 @@ import { KeyboardSpacer } from '../components/KeyboardSpacer';
 import { colours } from '../constants/Colours';
 import AndroidSafeArea from '../util/AndroidSafeArea';
 
+// Talking Veronica audio
+import sound1 from '../assets/speech/01.mp3';
+import sound2 from '../assets/speech/02.mp3';
+import sound3 from '../assets/speech/03.mp3';
+import sound4 from '../assets/speech/04.mp3';
+import sound5 from '../assets/speech/05.mp3';
+import sound6 from '../assets/speech/06.mp3';
+
+// chat screen
 export default function Chat() {
+  // Talking Veronica message updates
+  const talkingVeronicaMessages = [
+    '',
+    'Hi I’m Veronica. How are you today?',
+    'Are you sure? You know it’s okay to admit it’s bad if it was.',
+    'That’s very unprofessional. Stop it!',
+    'You know you can tell me anything right?',
+    'Why?',
+    'No [Daniel]. I’m your very special friend.',
+  ];
+
+  const [talkingVeronicaMessageIndex, setTalkingVeronicaMessageIndex] =
+    useState(0);
+
+  const talkingVeronicaAudio = [
+    '',
+    sound1,
+    sound2,
+    sound3,
+    sound4,
+    sound5,
+    sound6,
+  ];
+
+  // Talking Veronica audio setup
+  const [soundToPlay, setSoundToPlay] = useState(
+    talkingVeronicaAudio[talkingVeronicaMessageIndex],
+  );
+
+  const updateTalkingVeronicaMessage = () => {
+    if (talkingVeronicaMessageIndex < talkingVeronicaMessages.length - 1) {
+      setTalkingVeronicaMessageIndex(talkingVeronicaMessageIndex + 1);
+      setSoundToPlay(talkingVeronicaAudio[talkingVeronicaMessageIndex + 1]);
+    } else {
+      setTalkingVeronicaMessageIndex(0);
+      setSoundToPlay(talkingVeronicaAudio[0]);
+    }
+  };
+
   // daniel message updates
   const [danielMessage, setDanielMessage] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -36,18 +85,23 @@ export default function Chat() {
           <View style={styles.avatar}>
             <Avatar transitionCount={7} />
           </View>
-          <View style={[styles.chat, styles.talkingVeronicaChat]}>
-            <WebView
-              source={{ uri: 'https://talking-veronica-chat.netlify.app' }}
-            />
-          </View>
-          {/* <TouchableOpacity onPress={() => alert('veronica talked')}>
-            <Message
-              textMessage={talkingVeronicaMessages[talkingVeronicaMessageIndex]}
-              styling={[styles.chat, styles.talkingVeronicaChat]}
-              textStyling={styles.talkingVeronicaChatText}
-            />
-          </TouchableOpacity> */}
+          {talkingVeronicaMessages[talkingVeronicaMessageIndex] === '' ? (
+            <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
+              <Text style={[styles.chat, styles.avatar, styles.beginChat]}>
+                Begin Session
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
+              <Message
+                textMessage={
+                  talkingVeronicaMessages[talkingVeronicaMessageIndex]
+                }
+                styling={[styles.chat, styles.talkingVeronicaChat]}
+                textStyling={styles.talkingVeronicaChatText}
+              />
+            </TouchableOpacity>
+          )}
           <View style={styles.danielChat}>
             <Message
               textMessage={danielMessage}
@@ -95,13 +149,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginVertical: 10,
   },
+  beginChat: {
+    fontSize: 20,
+    color: colours.white,
+    backgroundColor: colours.black,
+    width: 180,
+    height: 50,
+  },
   talkingVeronicaChat: {
     backgroundColor: colours.black,
     marginLeft: 20,
     marginBottom: 10,
     marginTop: 150,
     width: 250,
-    height: 130,
   },
   talkingVeronicaChatText: {
     fontSize: 20,
