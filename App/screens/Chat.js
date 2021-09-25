@@ -8,8 +8,8 @@ import {
   ScrollView,
   Keyboard,
 } from 'react-native';
-import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
 import Avatar from '../components/Avatar';
 import Message from '../components/Message';
 import { KeyboardSpacer } from '../components/KeyboardSpacer';
@@ -40,28 +40,28 @@ export default function Chat() {
   const [talkingVeronicaMessageIndex, setTalkingVeronicaMessageIndex] =
     useState(0);
 
-  const talkingVeronicaAudio = [
-    '',
-    sound1,
-    sound2,
-    sound3,
-    sound4,
-    sound5,
-    sound6,
-  ];
+  const talkingVeronicaAudio = [sound1, sound2, sound3, sound4, sound5, sound6];
 
   // Talking Veronica audio setup
   const [soundToPlay, setSoundToPlay] = useState(
     talkingVeronicaAudio[talkingVeronicaMessageIndex],
   );
 
-  const updateTalkingVeronicaMessage = () => {
+  const updateTalkingVeronicaMessage = async () => {
     if (talkingVeronicaMessageIndex < talkingVeronicaMessages.length - 1) {
       setTalkingVeronicaMessageIndex(talkingVeronicaMessageIndex + 1);
+
       setSoundToPlay(talkingVeronicaAudio[talkingVeronicaMessageIndex + 1]);
+
+      const { sound } = await Audio.Sound.createAsync(soundToPlay, {
+        shouldPlay: true,
+      });
+
+      await sound.playAsync();
     } else {
       setTalkingVeronicaMessageIndex(0);
       setSoundToPlay(talkingVeronicaAudio[0]);
+      setDanielMessage('');
     }
   };
 
@@ -92,23 +92,26 @@ export default function Chat() {
               </Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
-              <Message
-                textMessage={
-                  talkingVeronicaMessages[talkingVeronicaMessageIndex]
-                }
-                styling={[styles.chat, styles.talkingVeronicaChat]}
-                textStyling={styles.talkingVeronicaChatText}
-              />
-            </TouchableOpacity>
+            <View>
+              <TouchableOpacity onPress={updateTalkingVeronicaMessage}>
+                <Message
+                  textMessage={
+                    talkingVeronicaMessages[talkingVeronicaMessageIndex]
+                  }
+                  styling={[styles.chat, styles.talkingVeronicaChat]}
+                  textStyling={styles.talkingVeronicaChatText}
+                />
+              </TouchableOpacity>
+
+              <View style={styles.danielChat}>
+                <Message
+                  textMessage={danielMessage}
+                  styling={[styles.chat, styles.danielChat]}
+                  textStyling={styles.danielChatText}
+                />
+              </View>
+            </View>
           )}
-          <View style={styles.danielChat}>
-            <Message
-              textMessage={danielMessage}
-              styling={[styles.chat, styles.danielChat]}
-              textStyling={styles.danielChatText}
-            />
-          </View>
           <KeyboardSpacer onToggle={(visible) => setScrollEnabled(visible)} />
         </View>
       </ScrollView>
